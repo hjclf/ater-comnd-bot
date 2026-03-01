@@ -3,7 +3,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
-# आपका बोट टोकन यहाँ है
+# आपका बोट टोकन
 API_TOKEN = '8726912419:AAEKfzfbDfOkYLOGGqjGSpPN6zrnuOC1u5c'
 WEB_APP_URL = 'https://ater-web-bot.vercel.app'
 
@@ -41,18 +41,23 @@ def get_keyboard():
     markup.add(web_app_btn, info_btn)
     return markup
 
-# जब कोई भी कमांड (/) भेजे तो यह फंक्शन चलेगा
-@dp.message_handler(lambda message: message.text.startswith('/'))
-async def send_welcome(message: types.Message):
-    user_name = message.from_user.full_name
+# यह हैंडलर ग्रुप और प्राइवेट दोनों में किसी भी '/' कमांड पर काम करेगा
+@dp.message_handler(lambda message: message.text and message.text.startswith('/'))
+async def send_response(message: types.Message):
+    # यूजर का नाम (अगर नाम न हो तो 'यूजर' दिखाएगा)
+    user_name = message.from_user.first_name if message.from_user.first_name else "यूजर"
     
-    # फोटो में दिखाए गए स्टाइल में रिप्लाई
-    await message.reply(
-        REPLY_TEXT.format(name=user_name),
-        reply_markup=get_keyboard(),
-        parse_mode="Markdown"
-    )
+    # रिप्लाई भेजना
+    try:
+        await message.reply(
+            REPLY_TEXT.format(name=user_name),
+            reply_markup=get_keyboard(),
+            parse_mode="Markdown",
+            disable_web_page_preview=True
+        )
+    except Exception as e:
+        logging.error(f"Error sending message: {e}")
 
 if __name__ == '__main__':
-    print("बोट चालू हो गया है...")
+    print("बोट ग्रुप और प्राइवेट चैट के लिए चालू है...")
     executor.start_polling(dp, skip_updates=True)
