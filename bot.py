@@ -2,7 +2,7 @@ import telebot
 from telebot.types import KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
 
 # Replace with your bot token
-TOKEN = '8726912419:AAEKfzfbDfOkYLOGGqjGSpPN6zrnuOC1u5c'
+TOKEN = '8726912419:AAFKSAkpmpM7EJlJZlj-CHzZzLXO8wUzylY'
 WEB_APP_URL = 'https://ater-web-bot.vercel.app'
 
 bot = telebot.TeleBot(TOKEN)
