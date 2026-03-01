@@ -1,40 +1,41 @@
 # bot.py
-# जरूरी पैकेज इंस्टॉल करने के लिए:
-# pip install python-telegram-bot --upgrade
+# Render पर होस्ट करने के लिए जरूरी पैकेज: python-telegram-bot==20.7
+# GitHub में requirements.txt में लिखना: python-telegram-bot==20.7
 
 import logging
+import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    filters,
-    ContextTypes,
-)
+from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
 # ------------------ नया टोकन ------------------
 TOKEN = "8726912419:AAGPKnKRpweDu6fwYfXXc7oe5pYKNLZWcqc"
 
-# तुम्हारा वेबसाइट / मिनी ऐप URL
+# तुम्हारा वेबसाइट URL (Mini App)
 WEBAPP_URL = "https://ater-web-bot.vercel.app"
 
-# लॉगिंग सेटअप
+# लॉगिंग सेटअप (Render logs में दिखेगा)
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# हर मैसेज / कमांड पर आने वाला रिस्पॉन्स
+# हर मैसेज / कमांड पर रिस्पॉन्स
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
-    username = user.username or "User"
+    first_name = user.first_name or "दोस्त"
 
-    # इनलाइन बटन
+    # इनलाइन बटन (web_app टाइप — क्लिक पर Mini App खुलेगा)
     keyboard = [
         [
             InlineKeyboardButton(
                 "🔥 ATER INFO ऐप खोलें 🔥",
+                web_app={"url": WEBAPP_URL}
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "ℹ️ पूरी जानकारी देखें",
                 web_app={"url": WEBAPP_URL}
             )
         ]
@@ -44,9 +45,9 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     # आकर्षक मैसेज
     text = (
-        f"नमस्ते {user.first_name} जी! 👋\n\n"
-        f"सारी जानकारी, नंबर, आधार, UPI, व्हीकल आदि सब कुछ एक जगह!\n"
-        "नीचे बटन पर क्लिक करके ऐप खोलें और तुरंत इस्तेमाल शुरू करें 🚀"
+        f"नमस्ते {first_name} जी! 👋\n\n"
+        "नंबर, आधार, UPI, व्हीकल, और सारी जानकारी एक जगह! 🚀\n"
+        "नीचे बटन दबाकर ऐप खोलो और तुरंत इस्तेमाल शुरू करो!"
     )
 
     # ग्रुप या प्राइवेट दोनों में काम करेगा
@@ -56,15 +57,26 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         disable_web_page_preview=True
     )
 
+
 def main() -> None:
     """बॉट शुरू करने का मुख्य फंक्शन"""
+    # Render पर event loop एरर फिक्स के लिए
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
     application = Application.builder().token(TOKEN).build()
 
-    # सभी कमांड्स और सभी टेक्स्ट मैसेज को हैंडल करेगा
+    # सभी टेक्स्ट मैसेज और कमांड्स को हैंडल करेगा
     application.add_handler(MessageHandler(filters.TEXT | filters.COMMAND, handle_message))
 
-    print("Bot started successfully! Press Ctrl+C to stop")
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    print("Bot started successfully! Waiting for messages...")
+    logger.info("Bot is running...")
+
+    # Polling शुरू
+    application.run_polling(
+        allowed_updates=Update.ALL_TYPES,
+        drop_pending_updates=True  # पुराने मैसेज इग्नोर करेगा
+    )
 
 
 if __name__ == "__main__":
