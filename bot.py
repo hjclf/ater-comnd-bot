@@ -13,7 +13,7 @@ from telegram.ext import (
 )
 
 # ------------------ नया टोकन ------------------
-TOKEN = "8737453745:AAGn-q8NkIcPTSqv-U82UNHiXMOzlYj9P0A"
+TOKEN = "8726912419:AAGPKnKRpweDu6fwYfXXc7oe5pYKNLZWcqc"
 
 # तुम्हारा वेबसाइट / मिनी ऐप URL
 WEBAPP_URL = "https://ater-web-bot.vercel.app"
