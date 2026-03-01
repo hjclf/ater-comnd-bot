@@ -1,4 +1,4 @@
-# bot.py - Render पर काम करने वाला क्लीन वर्जन
+# bot.py - Render फिक्स्ड वर्जन (no line continuation issues)
 
 import logging
 import os
@@ -19,10 +19,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 TOKEN = os.getenv("BOT_TOKEN")
-WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ater-web-bot.vercel.app")
-
 if not TOKEN:
-    raise ValueError("BOT_TOKEN environment variable नहीं मिला!")
+    raise ValueError("BOT_TOKEN env var नहीं मिला! Render में डालो")
+
+WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ater-web-bot.vercel.app")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
@@ -37,29 +37,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(text, reply_markup=reply_markup)
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    # अभी कुछ नहीं, spam avoid के लिए
-    pass
+    pass  # spam avoid, कुछ मत भेजो
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    logger.error("Error occurred:", exc_info=context.error)
+    logger.error(msg="Exception:", exc_info=context.error)
 
 def main() -> None:
-    application = Application.builder().token(TOKEN).build()
+    app = Application.builder().token(TOKEN).build()
 
-    application.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("start", start))
 
-    # ये लाइन पहले क्रैश कर रही थी - अब parentheses में सेफ
-    application.add_handler(
+    # filters को अलग variable में डालकर issue avoid
+    text_no_command = filters.TEXT & (\~filters.COMMAND)
+
+    app.add_handler(
         MessageHandler(
-            filters.TEXT & \~filters.COMMAND,
+            text_no_command,
             handle_text
         )
     )
 
-    application.add_error_handler(error_handler)
+    app.add_error_handler(error_handler)
 
-    print("Bot started... Running in polling mode")
-    application.run_polling(
+    print("Bot started... Polling mode ON")
+    app.run_polling(
         allowed_updates=Update.ALL_TYPES,
         drop_pending_updates=True
     )
