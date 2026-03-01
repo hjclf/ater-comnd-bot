@@ -1,63 +1,26 @@
-import logging
-from aiogram import Bot, Dispatcher, types
-from aiogram.utils import executor
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
+import telebot
+from telebot.types import KeyboardButton, ReplyKeyboardMarkup, WebAppInfo
 
-# आपका बोट टोकन
-API_TOKEN = '8726912419:AAEKfzfbDfOkYLOGGqjGSpPN6zrnuOC1u5c'
+# Replace with your bot token
+TOKEN = '8726912419:AAEKfzfbDfOkYLOGGqjGSpPN6zrnuOC1u5c'
 WEB_APP_URL = 'https://ater-web-bot.vercel.app'
 
-# Logging सेटअप
-logging.basicConfig(level=logging.INFO)
+bot = telebot.TeleBot(TOKEN)
 
-# बोट और डिस्पैचर सेटअप
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+# List of commands to handle
+COMMANDS = ['start', 'num', 'aadhar', 'vehicle']  # Add more commands here if needed, e.g., 'pan', 'dl'
 
-# रिप्लाई मैसेज का फॉर्मेट
-REPLY_TEXT = (
-    "नमस्ते **{name}** जी! 👋\n\n"
-    "नंबर, आधार, UPI, व्हीकल, और सारी\n"
-    "जानकारी एक जगह! 🚀\n"
-    "नीचे बटन दबाकर ऐप खोलो!"
-)
-
-def get_keyboard():
-    """बटन सेटअप"""
-    markup = InlineKeyboardMarkup(row_width=1)
+@bot.message_handler(commands=COMMANDS)
+def handle_commands(message):
+    # Create a reply keyboard with a button that opens the web app
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    web_app_button = KeyboardButton("Open Web App", web_app=WebAppInfo(url=WEB_APP_URL))
+    markup.add(web_app_button)
     
-    # Web App बटन
-    web_app_btn = InlineKeyboardButton(
-        text="🔥 ATER INFO ऐप खोलें 🔥",
-        web_app=WebAppInfo(url=WEB_APP_URL)
-    )
-    
-    # जानकारी वाला बटन
-    info_btn = InlineKeyboardButton(
-        text="ℹ️ पूरी जानकारी देखें",
-        callback_data="view_info"
-    )
-    
-    markup.add(web_app_btn, info_btn)
-    return markup
+    # Send the reply message with the button
+    bot.reply_to(message, "Click the button below to open the web app.", reply_markup=markup)
 
-# यह हैंडलर ग्रुप और प्राइवेट दोनों में किसी भी '/' कमांड पर काम करेगा
-@dp.message_handler(lambda message: message.text and message.text.startswith('/'))
-async def send_response(message: types.Message):
-    # यूजर का नाम (अगर नाम न हो तो 'यूजर' दिखाएगा)
-    user_name = message.from_user.first_name if message.from_user.first_name else "यूजर"
-    
-    # रिप्लाई भेजना
-    try:
-        await message.reply(
-            REPLY_TEXT.format(name=user_name),
-            reply_markup=get_keyboard(),
-            parse_mode="Markdown",
-            disable_web_page_preview=True
-        )
-    except Exception as e:
-        logging.error(f"Error sending message: {e}")
-
+# Start polling for updates
 if __name__ == '__main__':
-    print("बोट ग्रुप और प्राइवेट चैट के लिए चालू है...")
-    executor.start_polling(dp, skip_updates=True)
+    print("Bot is running...")
+    bot.infinity_polling()
