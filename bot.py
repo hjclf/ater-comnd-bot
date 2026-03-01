@@ -1,5 +1,4 @@
-# bot.py - Render फिक्स्ड वर्जन (no line continuation issues)
-
+# bot.py - Render Fixed Version
 import logging
 import os
 
@@ -12,20 +11,23 @@ from telegram.ext import (
     ContextTypes,
 )
 
+# Logging सेटअप
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
+# Environment Variables प्राप्त करना
 TOKEN = os.getenv("BOT_TOKEN")
 if not TOKEN:
-    raise ValueError("BOT_TOKEN env var नहीं मिला! Render में डालो")
+    raise ValueError("BOT_TOKEN environment variable नहीं मिला! कृपया Render Settings में इसे जोड़ें।")
 
 WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ater-web-bot.vercel.app")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
+    # बटन सेटअप
     keyboard = [
         [InlineKeyboardButton("🔥 ATER INFO ऐप खोलें 🔥", web_app={"url": WEBAPP_URL})],
         [InlineKeyboardButton("ℹ️ जानकारी के लिए क्लिक करें", web_app={"url": WEBAPP_URL})],
@@ -37,18 +39,21 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(text, reply_markup=reply_markup)
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    pass  # spam avoid, कुछ मत भेजो
+    # टेक्स्ट मैसेज आने पर कुछ नहीं करना (Spam रोकने के लिए)
+    pass
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    logger.error(msg="Exception:", exc_info=context.error)
+    logger.error(msg="Exception while handling an update:", exc_info=context.error)
 
 def main() -> None:
+    # एप्लीकेशन बनाएँ
     app = Application.builder().token(TOKEN).build()
 
+    # कमांड हैंडलर जोड़ें
     app.add_handler(CommandHandler("start", start))
 
-    # filters को अलग variable में डालकर issue avoid
-    text_no_command = filters.TEXT & (\~filters.COMMAND)
+    # फिक्स्ड लाइन: यहाँ से बैकस्लैश (\) हटा दिया गया है
+    text_no_command = filters.TEXT & (~filters.COMMAND)
 
     app.add_handler(
         MessageHandler(
@@ -57,9 +62,12 @@ def main() -> None:
         )
     )
 
+    # एरर हैंडलर जोड़ें
     app.add_error_handler(error_handler)
 
     print("Bot started... Polling mode ON")
+    
+    # बॉट रन करें
     app.run_polling(
         allowed_updates=Update.ALL_TYPES,
         drop_pending_updates=True
