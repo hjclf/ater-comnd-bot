@@ -14,7 +14,7 @@ TOKEN = "8726912419:AAGPKnKRpweDu6fwYfXXc7oe5pYKNLZWcqc"
 WEBAPP_URL = "https://ater-web-bot.vercel.app"
 
 # स्पेसिफिक ग्रुप का Chat ID (यहां अपना ID डालें, जैसे -1001234567890)
-GROUP_ID = --1002581209098  # <--- यहां चेंज करें! ऊपर बताए स्टेप से ID निकालें
+GROUP_ID = -1002581209098  # <--- यहां चेंज करें! पहले बताए स्टेप से ID निकालें
 
 # लॉगिंग सेटअप (Render logs में दिखेगा)
 logging.basicConfig(
@@ -58,7 +58,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         "नीचे बटन दबाकर ऐप खोलो और तुरंत इस्तेमाल शुरू करो!"
     )
 
-    # ग्रुप या प्राइवेट दोनों में काम करेगा (लेकिन अब सिर्फ स्पेसिफिक ग्रुप में)
+    # अब सिर्फ स्पेसिफिक ग्रुप में रिस्पॉन्स देगा
     await update.message.reply_text(
         text,
         reply_markup=reply_markup,
@@ -73,8 +73,8 @@ def main() -> None:
 
     application = Application.builder().token(TOKEN).build()
 
-    # सभी टेक्स्ट मैसेज और कमांड्स को हैंडल करेगा
-    application.add_handler(MessageHandler(filters.TEXT & (\~filters.COMMAND) | filters.COMMAND, handle_message))
+    # सभी टेक्स्ट मैसेज (कमांड्स सहित) को हैंडल करेगा
+    application.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     print("Bot started successfully! Waiting for messages...")
     logger.info("Bot is running...")
