@@ -67,7 +67,7 @@ def main() -> None:
     application = Application.builder().token(TOKEN).build()
 
     # सभी टेक्स्ट मैसेज और कमांड्स को हैंडल करेगा
-    application.add_handler(MessageHandler(filters.TEXT | filters.COMMAND, handle_message))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message)) | filters.COMMAND, handle_message))
 
     print("Bot started successfully! Waiting for messages...")
     logger.info("Bot is running...")
