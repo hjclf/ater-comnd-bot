@@ -1,61 +1,58 @@
 import logging
-import asyncio
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
-from telegram.ext import Application, MessageHandler, filters, ContextTypes
+from aiogram import Bot, Dispatcher, types
+from aiogram.utils import executor
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, WebAppInfo
 
-TOKEN = "8726912419:AAGPKnKRpweDu6fwYfXXc7oe5pYKNLZWcqc"
-WEBAPP_URL = "https://ater-web-bot.vercel.app"
+# आपका बोट टोकन यहाँ है
+API_TOKEN = '8726912419:AAEKfzfbDfOkYLOGGqjGSpPN6zrnuOC1u5c'
+WEB_APP_URL = 'https://ater-web-bot.vercel.app'
 
-# ←←← अपना ग्रुप ID यहां डालें (पहले बताए स्टेप से निकालें)
-GROUP_ID = -1002581209098   # ←←← जरूर चेंज करें!
+# Logging सेटअप
+logging.basicConfig(level=logging.INFO)
 
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    level=logging.INFO
+# बोट और डिस्पैचर सेटअप
+bot = Bot(token=API_TOKEN)
+dp = Dispatcher(bot)
+
+# रिप्लाई मैसेज का फॉर्मेट
+REPLY_TEXT = (
+    "नमस्ते **{name}** जी! 👋\n\n"
+    "नंबर, आधार, UPI, व्हीकल, और सारी\n"
+    "जानकारी एक जगह! 🚀\n"
+    "नीचे बटन दबाकर ऐप खोलो!"
 )
-logger = logging.getLogger(__name__)
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    chat = update.message.chat
-    if chat.type not in ['group', 'supergroup'] or chat.id != GROUP_ID:
-        return   # दूसरे ग्रुप/प्राइवेट में कुछ नहीं करेगा
+def get_keyboard():
+    """बटन सेटअप"""
+    markup = InlineKeyboardMarkup(row_width=1)
+    
+    # Web App बटन
+    web_app_btn = InlineKeyboardButton(
+        text="🔥 ATER INFO ऐप खोलें 🔥",
+        web_app=WebAppInfo(url=WEB_APP_URL)
+    )
+    
+    # जानकारी वाला बटन
+    info_btn = InlineKeyboardButton(
+        text="ℹ️ पूरी जानकारी देखें",
+        callback_data="view_info"
+    )
+    
+    markup.add(web_app_btn, info_btn)
+    return markup
 
-    user = update.effective_user
-    first_name = user.first_name or "दोस्त"
-
-    keyboard = [
-        [InlineKeyboardButton("🔥 ATER INFO ऐप खोलें 🔥", web_app=WebAppInfo(url=WEBAPP_URL))],
-        [InlineKeyboardButton("ℹ️ पूरी जानकारी देखें", web_app=WebAppInfo(url=WEBAPP_URL))]
-    ]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    text = (
-        f"नमस्ते {first_name} जी! 👋\n\n"
-        "नंबर, आधार, UPI, व्हीकल, और सारी जानकारी एक जगह! 🚀\n"
-        "नीचे बटन दबाकर ऐप खोलो!"
+# जब कोई भी कमांड (/) भेजे तो यह फंक्शन चलेगा
+@dp.message_handler(lambda message: message.text.startswith('/'))
+async def send_welcome(message: types.Message):
+    user_name = message.from_user.full_name
+    
+    # फोटो में दिखाए गए स्टाइल में रिप्लाई
+    await message.reply(
+        REPLY_TEXT.format(name=user_name),
+        reply_markup=get_keyboard(),
+        parse_mode="Markdown"
     )
 
-    await update.message.reply_text(
-        text,
-        reply_markup=reply_markup,
-        disable_web_page_preview=True
-    )
-
-def main() -> None:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    application = Application.builder().token(TOKEN).build()
-    application.add_handler(MessageHandler(filters.TEXT, handle_message))
-
-    print("Bot started successfully!")
-    logger.info("Bot is running...")
-
-    application.run_polling(
-        allowed_updates=Update.ALL_TYPES,
-        drop_pending_updates=True
-    )
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    print("बोट चालू हो गया है...")
+    executor.start_polling(dp, skip_updates=True)
