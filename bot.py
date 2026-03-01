@@ -20,7 +20,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 2. टोकन और URL (सीधे कोड में या Environment Variables से)
-TOKEN = "8737453745:AAFmPHK4ewfcFNuXg_8DfnaIHx7-n9a7sTg"
+TOKEN = os.getenv("BOT_TOKEN")
 WEBAPP_URL = os.getenv("WEBAPP_URL", "https://ater-web-bot.vercel.app")
 
 # 3. Render 'Port' एरर फिक्स करने के लिए छोटा सर्वर
