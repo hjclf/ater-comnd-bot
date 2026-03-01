@@ -2,7 +2,7 @@ import logging
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import Application, MessageHandler, filters, ContextTypes
 
-BOT_TOKEN = "8726912419:AAFKSAkpmpM7EJlJZlj-CHzZzLXO8wUzylY"
+BOT_TOKEN = "8726912419:AAFOm3dCKXGp2YFVxj3DoEe2AUyw_XR8jo4"
 WEB_APP_URL = "https://ater-web-bot.vercel.app"
 
 TRIGGER_COMMANDS = {
