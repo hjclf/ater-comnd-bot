@@ -27,13 +27,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     # बटन callback_data के साथ (क्लिक पर हैंडल करेंगे)
     keyboard = [
         [InlineKeyboardButton("🔥 ATER INFO ऐप खोलें 🔥", callback_data="open_webapp")],
-        
+        [InlineKeyboardButton("ℹ️ पूरी जानकारी देखें", callback_data="open_webapp")]
+    ]
+
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     text = (
-        f"HELLO {first_name} ! 👋\n\n"
-        "NUMBER, AADHAR, UPI, VEHICLE, TELEGRAM,  And all the information in one place! 🚀\n"
-        "Click button open tha app"
+        f"नमस्ते {first_name} जी! 👋\n\n"
+        "नंबर, आधार, UPI, व्हीकल, और सारी जानकारी एक जगह! 🚀\n"
+        "नीचे बटन दबाकर ऐप खोलो!"
     )
 
     await update.message.reply_text(
@@ -50,11 +52,11 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         user_id = query.from_user.id
         # यूजर को प्राइवेट मैसेज भेजें जिसमें Web App बटन हो
         keyboard = [
-            [InlineKeyboardButton("🔥 ATER WEB INFO OPEN 🔥", web_app={"url": WEBAPP_URL})]
+            [InlineKeyboardButton("🔥 ATER INFO ऐप खोलें 🔥", web_app={"url": WEBAPP_URL})]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
-        text = "Click button open the app 🚀"
+        text = "नीचे बटन दबाकर ऐप खोलें! 🚀"
 
         try:
             await context.bot.send_message(
